@@ -1,8 +1,8 @@
-use std::{fs, path};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use std::env;
 use std::path::{Path, PathBuf};
+use std::{fs, path};
+use uuid::Uuid;
 
 pub fn load_todos() -> Vec<TodoItem> {
     let todos = vec![
@@ -25,68 +25,79 @@ pub fn load_todos() -> Vec<TodoItem> {
     // 拼接出"todos.yml"的完整路径
     let file_path = Path::new(&current_dir).join("todos.yml");
 
-    let yaml_content = fs::read_to_string(file_path)
-        .unwrap_or_else(|err| {
-            eprintln!("Error reading file: {}", err);
-            String::new()
-        });
-    let todos: Vec<TodoItem> = serde_yaml::from_str(&yaml_content)
-        .unwrap_or_else(|err| {
-            eprintln!("Error parsing YAML: {}", err);
-            vec![]
-        });
+    let yaml_content = fs::read_to_string(file_path).unwrap_or_else(|err| {
+        eprintln!("Error reading file: {}", err);
+        String::new()
+    });
+    let todos: Vec<TodoItem> = serde_yaml::from_str(&yaml_content).unwrap_or_else(|err| {
+        eprintln!("Error parsing YAML: {}", err);
+        vec![]
+    });
     todos
 }
 
 pub fn save_todos(todos: Vec<TodoItem>) {
-    let yaml_content = serde_yaml::to_string(&todos)
-        .unwrap_or_else(|err| {
-            eprintln!("Error serializing YAML: {}", err);
-            String::new()
-        });
+    let yaml_content = serde_yaml::to_string(&todos).unwrap_or_else(|err| {
+        eprintln!("Error serializing YAML: {}", err);
+        String::new()
+    });
 
     let current_dir = env::current_dir().unwrap();
     let file_path = Path::new(&current_dir).join("todos.yml");
 
-    fs::write(file_path, yaml_content)
-        .unwrap_or_else(|err| {
-            eprintln!("Error writing file: {}", err);
-        });
+    fs::write(file_path, yaml_content).unwrap_or_else(|err| {
+        eprintln!("Error writing file: {}", err);
+    });
 }
 
-
-struct TodoList {
+#[derive(Debug, Clone)]
+pub struct TodoList {
     todos: Vec<TodoItem>,
 }
 
 impl TodoList {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { todos: Vec::new() }
     }
 
-    fn load() -> Self {
+    pub fn load_from_yaml_file() -> Self {
         let todos = load_todos();
         Self { todos }
     }
 
-    fn save(&self) {
+    pub fn save_to_ymal_file(&self) {
         save_todos(self.todos.clone());
     }
 
-    fn add(&mut self, todo: TodoItem) {
+    pub fn add(&mut self, todo: TodoItem) {
         self.todos.push(todo);
     }
 
-    fn add_from_content(&mut self, content: String) {
+    pub fn add_from_content(&mut self, content: String) -> Uuid {
         let todo = TodoItem::new(content);
-        self.todos.push(todo);
+        let id = todo.id;
+        self.todos.insert(0, todo);
+        id
     }
 
-    fn del_by_id(&mut self, id: Uuid) {
+    pub fn index_of(&self, id: Uuid) -> Option<usize> {
+        self.todos.iter().position(|todo| todo.id == id)
+    }
+
+    pub fn del_by_id(&mut self, id: Uuid) {
         self.todos.retain(|todo| todo.id != id);
     }
 
     // 其他方法...
+}
+
+impl IntoIterator for TodoList {
+    type Item = TodoItem;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.todos.into_iter()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

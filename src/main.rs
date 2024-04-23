@@ -1,6 +1,8 @@
-use std::cell::RefCell;
+use std::borrow::Borrow;
 use std::env;
 use std::rc::Rc;
+use std::sync::Mutex;
+use std::{cell::RefCell, sync::Arc};
 use todo::{TodoItem, *};
 
 mod todo;
@@ -8,11 +10,11 @@ mod todo;
 slint::include_modules!();
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let todos: Vec<TodoItem> = load_todos(); //加载数据
-    let todos = Rc::new(RefCell::new(todos));
+    let todos = TodoList::load_from_yaml_file(); //加载数据
+    // let todos = Rc::new(RefCell::new(todos));
 
     let mut todos_slint: Vec<TodoItemSlint> = Vec::new();
-    for todo in todos.borrow().iter() {
+    for todo in todos.clone() {
         let todo_s = TodoItemSlint {
             id: todo.id.to_string().into(),
             content: todo.content.clone().into(),
@@ -25,28 +27,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let models = std::rc::Rc::new(slint::VecModel::from(todos_slint));
     ui.set_todos(models.clone().into());
     // let ui_weak = ui.as_weak();
+    let todos = Arc::new(Mutex::new(todos));
+    let models = Arc::new(Mutex::new(models));
 
     ui.on_add_todo({
         let todos = todos.clone();
         let models = models.clone();
         move |content| {
-            let todo = TodoItem {
-                id: uuid::Uuid::new_v4(),
-                content: content.into(),
-                done: false,
-            };
-            let todo_s = todo.clone();
+            // let todo = TodoItem {
+            //     id: uuid::Uuid::new_v4(),
+            //     content: content.clone().into(),
+            //     done: false,
+            // };
+            // let todo_s = todo.clone();
 
             // let todos = todos_add.clone();
-            todos.borrow_mut().insert(0, todo);
-            save_todos(todos.borrow().clone());
+            let mut todos = todos.lock().unwrap();
+            let id = todos.add_from_content(content.clone().into());
+            let models = models.lock().unwrap();
+            // save_todos(todos.clone());
+            todos.save_to_ymal_file();
 
             models.insert(
                 0,
                 TodoItemSlint {
-                    id: todo_s.id.to_string().into(),
-                    content: todo_s.content.into(),
-                    done: todo_s.done,
+                    id: id.to_string().into(),
+                    content: content.clone(),
+                    done: false,
                 },
             );
         }
@@ -56,12 +63,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let todos = todos.clone();
         let models = models.clone();
         move |id| {
-            let id = uuid::Uuid::parse_str(&id).unwrap();
+            let id = uuid::Uuid::parse_str(&id).unwrap_or_else(|err| {
+                eprintln!("Failed to parse UUID: {}", err);
+                uuid::Uuid::nil()
+            });
             // let todos = todos_del.clone();
-            let index = todos.borrow().iter().position(|x| x.id == id).unwrap();
-            todos.borrow_mut().remove(index);
-            save_todos(todos.borrow().clone());
-            models.remove(index);
+            let mut todos = todos.lock().unwrap();
+            let models = models.lock().unwrap();
+            match todos.index_of(id) {
+                Some(index) => {
+                    todos.del_by_id(id);
+                    models.remove(index);
+                    // save_todos(todos.borrow().clone());
+                    todos.save_to_ymal_file();
+                }
+                None => {
+                    eprintln!("Failed to find todo with ID: {}", id);
+                }
+            }
         }
     });
 
