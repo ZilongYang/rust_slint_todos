@@ -1,8 +1,4 @@
 import { Button, VerticalBox, HorizontalBox, LineEdit, ListView } from "std-widgets.slint";
-component MyButton inherits Text {
-    color: black;
-    // ...
-}
 
 export struct TodoItemSlint {
     id: string,
@@ -10,12 +6,18 @@ export struct TodoItemSlint {
     done: bool,
 }
 
-
-component TodoList inherits Rectangle {
-
+export global Logic {
+    callback add_todo(string);
     callback set_todo_content(string, string);
     callback set_todo_done(string, bool);
     callback del_todo(string);
+} 
+
+component TodoList inherits Rectangle {
+
+    // callback set_todo_content(string, string);
+    // callback set_todo_done(string, bool);
+    // callback del_todo(string);
 
     in property <TodoItemSlint> item;
     in property <bool> notLast: true;
@@ -38,7 +40,7 @@ component TodoList inherits Rectangle {
                 text: "Delete";
                 clicked() => {
                     debug("Delete button clicked");
-                    del_todo(item.id);
+                    Logic.del_todo(item.id);
                 }
             }
 
@@ -59,22 +61,22 @@ component TodoList inherits Rectangle {
 
 export component MyApp inherits Window {
 
-    callback add_todo(string);
-    callback set_todo_content(string, string);
-    callback set_todo_done(string, bool);
-    callback del_todo(string);
+    // callback add_todo(string);
+    // callback set_todo_content(string, string);
+    // callback set_todo_done(string, bool);
+    // callback del_todo(string);
 
-    public function add(content: string){
-        if (content != "") {
-            add_todo(content);
-        }
-    }
+    // public function add(content: string){
+    //     if (content != "") {
+    //         add_todo(content);
+    //     }
+    // }
 
-    public function del(id: string){
-        if (id != "") {
-            del_todo(id);
-        }
-    }
+    // public function del(id: string){
+    //     if (id != "") {
+    //         del_todo(id);
+    //     }
+    // }
 
     in property <[TodoItemSlint]> todos: [
         { id: "1", content: "Buy milk", done: false },
@@ -118,7 +120,7 @@ export component MyApp inherits Window {
                 accepted(s) => {
                     debug("Enter pressed");
                     if (s != "") {
-                        add_todo(s);
+                        Logic.add_todo(s);
                         edtInput.text = "";
                     }
                 }
@@ -131,7 +133,7 @@ export component MyApp inherits Window {
                 clicked() => {
                     debug("Add button clicked");
                     if (edtInput.text != "") {
-                        add_todo(edtInput.text);
+                        Logic.add_todo(edtInput.text);
                         edtInput.text = "";
                     }
                 }
@@ -152,15 +154,15 @@ export component MyApp inherits Window {
                     item: item;
                     notLast: index < todos.length - 1;
 
-                    set_todo_content => {
-                        set_todo_content(item.id, item.content);
-                    }
-                    set_todo_done => {
-                        set_todo_done(item.id, item.done);
-                    }
-                    del_todo => {
-                        del_todo(item.id);
-                    }
+                    // set_todo_content => {
+                    //     set_todo_content(item.id, item.content);
+                    // }
+                    // set_todo_done => {
+                    //     set_todo_done(item.id, item.done);
+                    // }
+                    // del_todo => {
+                    //     del_todo(item.id);
+                    // }
                 }
             }
         }

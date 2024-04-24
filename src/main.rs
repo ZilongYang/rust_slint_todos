@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let todos = Arc::new(Mutex::new(todos));
     let models = Arc::new(Mutex::new(models));
 
-    ui.on_add_todo({
+    ui.global::<Logic>().on_add_todo({
         let todos = todos.clone();
         let models = models.clone();
         move |content| {
@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     });
 
-    ui.on_del_todo({
+    ui.global::<Logic>().on_del_todo({
         let todos = todos.clone();
         let models = models.clone();
         move |id| {
