@@ -52,7 +52,7 @@ pub fn save_todos(todos: Vec<TodoItem>) {
 
 #[derive(Debug, Clone)]
 pub struct TodoList {
-    todos: Vec<TodoItem>,
+    pub todos: Vec<TodoItem>,
 }
 
 impl TodoList {
@@ -97,6 +97,24 @@ impl IntoIterator for TodoList {
 
     fn into_iter(self) -> Self::IntoIter {
         self.todos.into_iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a TodoList {
+    type Item = &'a TodoItem;
+    type IntoIter = std::slice::Iter<'a, TodoItem>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.todos.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut TodoList {
+    type Item = &'a mut TodoItem;
+    type IntoIter = std::slice::IterMut<'a, TodoItem>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.todos.iter_mut()
     }
 }
 

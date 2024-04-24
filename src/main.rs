@@ -3,9 +3,24 @@ use std::env;
 use std::rc::Rc;
 use std::sync::Mutex;
 use std::{cell::RefCell, sync::Arc};
-use todo::{TodoItem, *};
+use todo::{TodoItem, TodoList};
 
 mod todo;
+
+impl TodoList  {
+    fn to_slint(&self) -> Vec<TodoItemSlint> {
+        let mut todos_slint: Vec<TodoItemSlint> = Vec::new();
+        for todo in self {
+            let todo_s = TodoItemSlint {
+                id: todo.id.to_string().into(),
+                content: todo.content.clone().into(),
+                done: todo.done,
+            };
+            todos_slint.push(todo_s);
+        }
+        todos_slint
+    }
+}
 
 slint::include_modules!();
 
@@ -13,15 +28,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let todos = TodoList::load_from_yaml_file(); //加载数据
     // let todos = Rc::new(RefCell::new(todos));
 
-    let mut todos_slint: Vec<TodoItemSlint> = Vec::new();
-    for todo in todos.clone() {
-        let todo_s = TodoItemSlint {
-            id: todo.id.to_string().into(),
-            content: todo.content.clone().into(),
-            done: todo.done,
-        };
-        todos_slint.push(todo_s);
-    } //构架slint数据
+    let mut todos_slint = todos.to_slint();
+    // let mut todos_slint: Vec<TodoItemSlint> = Vec::new();
+    // for todo in todos.clone() {
+    //     let todo_s = TodoItemSlint {
+    //         id: todo.id.to_string().into(),
+    //         content: todo.content.clone().into(),
+    //         done: todo.done,
+    //     };
+    //     todos_slint.push(todo_s);
+    // } //构架slint数据
 
     let ui = MyApp::new()?;
     let models = std::rc::Rc::new(slint::VecModel::from(todos_slint));
