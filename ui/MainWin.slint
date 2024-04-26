@@ -1,4 +1,4 @@
-import { Button, VerticalBox, HorizontalBox, LineEdit, ListView } from "std-widgets.slint";
+import { Button, VerticalBox, HorizontalBox, LineEdit, ListView, CheckBox } from "std-widgets.slint";
 
 export struct TodoItemSlint {
     id: string,
@@ -34,12 +34,26 @@ component TodoList inherits Rectangle {
                 font-size: 16px;
                 enabled: true;
                 text: item.content;
+                accepted(s) => {
+                    debug("Enter pressed, set content");
+                    if (s != "") {
+                        Logic.set_todo_content(item.id, s);
+                    }
+                }
             }
-
+            CheckBox {
+                width: 30px;
+                // text: "Done";
+                checked: item.done;
+                toggled => {
+                    debug("CheckBox toggled");
+                    Logic.set_todo_done(item.id, !item.done);
+                }
+            }
             Button {
                 text: "Delete";
                 clicked() => {
-                    debug("Delete button clicked");
+                    debug("Delete item clicked");
                     Logic.del_todo(item.id);
                 }
             }
@@ -118,7 +132,7 @@ export component MyApp inherits Window {
                 enabled: true;
                 horizontal-stretch: 1;
                 accepted(s) => {
-                    debug("Enter pressed");
+                    debug("Enter pressed, add todoItem");
                     if (s != "") {
                         Logic.add_todo(s);
                         edtInput.text = "";
