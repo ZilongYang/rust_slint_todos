@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use std::env;
 use std::rc::Rc;
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 use std::{cell::RefCell, sync::Arc};
 use todo::{TodoItem, TodoList};
 
@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let todos = TodoList::load_from_yaml_file(); //加载数据
     // let todos = Rc::new(RefCell::new(todos));
 
-    let mut todos_slint = todos.to_slint();
+    let todos_slint = todos.to_slint();
     // let mut todos_slint: Vec<TodoItemSlint> = Vec::new();
     // for todo in todos.clone() {
     //     let todo_s = TodoItemSlint {
@@ -43,12 +43,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let models = std::rc::Rc::new(slint::VecModel::from(todos_slint));
     ui.set_todos(models.clone().into());
     // let ui_weak = ui.as_weak();
-    let todos = Arc::new(Mutex::new(todos));
-    let models = Arc::new(Mutex::new(models));
+    let todos = Arc::new(RwLock::new(todos));
+    let models = Arc::new(RwLock::new(models));
 
     ui.global::<Logic>().on_add_todo({
-        let todos = todos.clone();
-        let models = models.clone();
+        let todos = Arc::clone(&todos);
+        let models = Arc::clone(&models);
         move |content| {
             // let todo = TodoItem {
             //     id: uuid::Uuid::new_v4(),
@@ -58,9 +58,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // let todo_s = todo.clone();
 
             // let todos = todos_add.clone();
-            let mut todos = todos.lock().unwrap();
+            let mut todos = todos.write().unwrap();
             let id = todos.add_from_content(content.clone().into());
-            let models = models.lock().unwrap();
+            let models = models.write().unwrap();
             // save_todos(todos.clone());
             todos.save_to_ymal_file();
 
@@ -76,16 +76,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     ui.global::<Logic>().on_del_todo({
-        let todos = todos.clone();
-        let models = models.clone();
+        let todos = Arc::clone(&todos);
+        let models = Arc::clone(&models);
         move |id| {
             let id = uuid::Uuid::parse_str(&id).unwrap_or_else(|err| {
                 eprintln!("Failed to parse UUID: {}", err);
                 uuid::Uuid::nil()
             });
             // let todos = todos_del.clone();
-            let mut todos = todos.lock().unwrap();
-            let models = models.lock().unwrap();
+            let mut todos = todos.write().unwrap();
+            let models = models.write().unwrap();
             match todos.index_of(id) {
                 Some(index) => {
                     todos.del_by_id(id);
