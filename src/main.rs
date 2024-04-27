@@ -113,7 +113,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let models = models.write().unwrap();
             match todos.index_of(id) {
                 Some(index) => {
-                    let todo = &mut todos.todos[index];
+                    let todo = &mut todos[index];
                     todo.done = done;
                     models.insert(index, TodoItemSlint {
                         id: id.to_string().into(),
@@ -142,7 +142,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let models = models.write().unwrap();
             match todos.index_of(id) {
                 Some(index) => {
-                    let todo = &mut todos.todos[index];
+                    let todo = &mut todos[index];
                     todo.content = content.clone().into();
                     models.insert(index, TodoItemSlint {
                         id: id.to_string().into(),
