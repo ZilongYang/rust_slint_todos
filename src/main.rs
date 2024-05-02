@@ -1,9 +1,14 @@
+#[allow(dead_code)]
+#[allow(unused_imports)]
+
 use std::borrow::Borrow;
 use std::env;
 use std::rc::Rc;
 use std::sync::{Mutex, RwLock};
 use std::{cell::RefCell, sync::Arc};
 use todo::{TodoItem, TodoList};
+
+slint::include_modules!();
 
 mod todo;
 
@@ -21,8 +26,6 @@ impl TodoList  {
         todos_slint
     }
 }
-
-slint::include_modules!();
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let todos = TodoList::load_from_yaml_file(); //加载数据

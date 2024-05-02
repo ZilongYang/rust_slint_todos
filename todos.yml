@@ -1,12 +1,15 @@
+- id: d2ffb78e-5364-45f9-b85f-e392f3eb9b4d
+  content: 添加删除图标
+  done: true
 - id: 775689f1-e800-498c-a51d-f937a8c5b4e8
   content: 打网球
-  done: false
+  done: true
 - id: e23c9e00-b8df-4bd4-9dc0-71301bb0bd1c
   content: 开发程序
-  done: true
+  done: false
 - id: 295be614-f17d-43dc-bb54-82f01ca7b256
   content: 去4S店
   done: true
 - id: a7deda4e-4df9-4003-9550-3a22e7ceff82
   content: 买牛奶
-  done: false
+  done: true

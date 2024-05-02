@@ -4,6 +4,7 @@ use std::path::{Path};
 use std::{fs};
 use uuid::Uuid;
 
+/// 从文件加载todos
 pub fn load_todos() -> Vec<TodoItem> {
 
     // 获取当前程序的运行目录
@@ -24,6 +25,7 @@ pub fn load_todos() -> Vec<TodoItem> {
     todos
 }
 
+/// 保存todos到文件
 pub fn save_todos(todos: Vec<TodoItem>) {
     let yaml_content = serde_yaml::to_string(&todos)
     .unwrap_or_else(|err| {
@@ -90,15 +92,6 @@ impl IntoIterator for TodoList {
     }
 }
 
-// impl Iterator for TodoList {
-//     type Item = TodoItem;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         self.todos.pop()
-//     }
-    
-// }
-
 impl<'a> IntoIterator for &'a TodoList {
     type Item = &'a TodoItem;
     type IntoIter = std::slice::Iter<'a, TodoItem>;
@@ -120,6 +113,7 @@ impl<'a> IntoIterator for &'a mut TodoList {
 use std::ops::Index;
 use std::ops::IndexMut;
 
+// 实现索引操作
 impl Index<usize> for TodoList {
     type Output = TodoItem;
 
@@ -127,7 +121,7 @@ impl Index<usize> for TodoList {
         &self.list[index]
     }
 }
-
+// 实现可变索引操作
 impl IndexMut<usize> for TodoList {
 
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
