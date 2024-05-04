@@ -1,4 +1,4 @@
-import { Button, VerticalBox, HorizontalBox, LineEdit, ListView, CheckBox } from "std-widgets.slint";
+import { Button, VerticalBox, HorizontalBox, LineEdit, ListView, CheckBox, StandardButton } from "std-widgets.slint";
 
 export struct TodoItemSlint {
     id: string,
@@ -11,7 +11,7 @@ export global Logic {
     callback set_todo_content(string, string);
     callback set_todo_done(string, bool);
     callback del_todo(string);
-} 
+}
 
 component TodoList inherits Rectangle {
 
@@ -42,6 +42,7 @@ component TodoList inherits Rectangle {
                     }
                 }
             }
+
             CheckBox {
                 width: 30px;
                 // text: "Done";
@@ -51,16 +52,21 @@ component TodoList inherits Rectangle {
                     Logic.set_todo_done(item.id, !item.done);
                 }
             }
+
             Button {
                 // text: "Delete";
                 icon: @image-url("icons/delete.svg");
                 colorize-icon: true;
                 clicked() => {
-                    debug("Delete item clicked");
+                    debug("Delete item clicked, id: " + item.id);
                     Logic.del_todo(item.id);
                 }
             }
-            Rectangle { width: 0px;}
+
+            Rectangle {
+                width: 0px;
+            }
+
             // Rectangle {
             //     // padding: 20px;
             //     width: 30px;
@@ -96,9 +102,60 @@ component TodoList inherits Rectangle {
     }
 }
 
+component DelConfirmDialog inherits Rectangle {
+
+    // title: "Confirm";
+    // background: background.darker(25%);
+    width: 100%;
+    height: 100%;
+    background: #333;
+    opacity: 0.95;
+    preferred-width: 100%;
+
+    HorizontalBox {
+        Rectangle {
+            background: root.background.darker(25%);
+            VerticalBox {
+                Rectangle {
+                    // width: 70%;
+                    // height: 70%;
+                    // background: #333;
+                    Text {
+                        text: "Are you sure to delete this todo item?";
+                        font-size: 16px;
+                        font-weight: 600;
+                    }
+                }
+
+                StandardButton {
+                    kind: ok;
+                    clicked() => {
+                        debug("OK button clicked");
+                    }
+                }
+
+                StandardButton {
+                    kind: cancel;
+                }
+            }
+        }
+    }
+
+    // Text {
+    //     text: "This is a dialog box";
+    // }
+
+    
+
+    // Button {
+    //     text: "More Info";
+    //     dialog-button-role: action;
+    // }
+}
+
 export component MyApp inherits Window {
 
-    title:  @tr("Todo List");
+    title: @tr("Todo Lists");
 
     in property <[TodoItemSlint]> todos: [
         { id: "1", content: "Buy milk", done: false },
@@ -111,46 +168,46 @@ export component MyApp inherits Window {
         // { id: "2", content: "Buy bread", done: true },
         // { id: "3", content: "Buy butter", done: false },
     ];
-    width: 400px;
-    height: 500px;
+        width: 400px;
+        height: 500px;
 
-    VerticalBox {
-        padding: 0px;
-        spacing: 0;
+        VerticalBox {
+            padding: 0px;
+            spacing: 0;
 
-        HorizontalBox {
-            padding: 8px;
-            spacing: 8px;
-            height: 50px;
-            // Rectangle {width: 0;}
+            HorizontalBox {
+                padding: 8px;
+                spacing: 8px;
+                height: 50px;
+                // Rectangle {width: 0;}
             Text {
-                text: "Todos";
-                font-size: 18px;
-                // width: 60px;
+                    text: "Todos";
+                    font-size: 18px;
+                    // width: 60px;
                 vertical-alignment: center;
-                // vertical-alignment: center;
+                    // vertical-alignment: center;
             }
 
-            edtInput := LineEdit {
-                // height: 40px;
+                edtInput := LineEdit {
+                    // height: 40px;
                 // height: 100%;
                 // width: 100%;
                 font-size: 16px;
-                placeholder-text: @tr("Input todo and press Enter.");
-                enabled: true;
-                horizontal-stretch: 1;
-                accepted(s) => {
-                    debug("Enter pressed, add todoItem");
-                    if (s != "") {
-                        Logic.add_todo(s);
-                        edtInput.text = "";
+                    placeholder-text: @tr("Input todo and press Enter.");
+                    enabled: true;
+                    horizontal-stretch: 1;
+                    accepted(s) => {
+                        debug("Enter pressed, add todoItem");
+                        if (s != "") {
+                            Logic.add_todo(s);
+                            edtInput.text = "";
+                        }
+                    }
+                    edited(s) => {
                     }
                 }
-                edited(s) => {
-                }
-            }
 
-            // Button {
+                // Button {
             //     text: "Add";
             //     clicked() => {
             //         debug("Add button clicked");
@@ -162,21 +219,21 @@ export component MyApp inherits Window {
             // }
         }
 
-        Rectangle {
-            background: #666;
-            height: 0.5px;
-        }
+            Rectangle {
+                background: #666;
+                height: 0.5px;
+            }
 
-        HorizontalBox {
-            padding: 4px;
-            vertical-stretch: 1;
+            HorizontalBox {
+                padding: 4px;
+                vertical-stretch: 1;
 
-            ListView {
-                for item[index] in todos: TodoList {
-                    item: item;
-                    notLast: index < todos.length - 1;
+                ListView {
+                    for item[index] in todos: TodoList {
+                        item: item;
+                        notLast: index < todos.length - 1;
 
-                    // set_todo_content => {
+                        // set_todo_content => {
                     //     set_todo_content(item.id, item.content);
                     // }
                     // set_todo_done => {
@@ -186,7 +243,9 @@ export component MyApp inherits Window {
                     //     del_todo(item.id);
                     // }
                 }
+                }
             }
         }
+
+        // DelConfirmDialog { }
     }
-}

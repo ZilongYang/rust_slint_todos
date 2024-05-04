@@ -1,7 +1,15 @@
 [package]
-name = "todo_demo"
+name = "zl_todos"
 version = "0.1.0"
 edition = "2021"
+authors = ["Zilong Yang <ziong.yang@gmail.com>"]
+license = "MIT"
+description = "A simple todo list application written in Rust"
+readme = "README.md"
+homepage = "https://github.com/ZilongYang/rust_slint_todos"
+repository = "https://github.com/ZilongYang/rust_slint_todos"
+keywords = ["zl", "rust", "todos", "slint", "demo"]
+categories = ["demo", "slint", "todos"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
