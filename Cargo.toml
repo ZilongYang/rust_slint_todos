@@ -1,6 +1,6 @@
 [package]
 name = "zl_todos"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Zilong Yang <ziong.yang@gmail.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/ZilongYang/rust_slint_todos"
 repository = "https://github.com/ZilongYang/rust_slint_todos"
 keywords = ["zl", "rust", "todos", "slint", "demo"]
-categories = ["demo", "slint", "todos"]
+categories = ["development-tools", "utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
